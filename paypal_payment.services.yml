@@ -1,0 +1,4 @@
+services:
+  paypal_payment.logger:
+    parent: logger.channel_base
+    arguments: ['paypal_payment']

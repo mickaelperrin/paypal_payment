@@ -1,0 +1,89 @@
+paypal_payment.admin:
+  path: '/admin/config/services/payment/paypal'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'PayPal Payment'
+  requirements:
+    _permission: 'administer paypal payment'
+
+paypal_payment.test:
+  path: '/admin/config/services/payment/paypal/connection-test'
+  defaults:
+    _form: '\Drupal\paypal_payment\Form\TestForm'
+    _title: 'Test PayPal connection'
+  requirements:
+    _permission: 'administer paypal payment'
+
+entity.paypal_standard_profile.collection:
+  path: '/admin/config/services/payment/paypal/profiles/standard'
+  defaults:
+    _entity_list: 'paypal_standard_profile'
+    _title: 'PayPal Standard profiles'
+  requirements:
+    _permission: 'administer paypal payment'
+entity.paypal_express_profile.collection:
+  path: '/admin/config/services/payment/paypal/profiles/express'
+  defaults:
+    _entity_list: 'paypal_express_profile'
+    _title: 'PayPal Express profiles'
+  requirements:
+    _permission: 'administer paypal payment'
+
+paypal_payment.paypal_standard_profile.add:
+  path: '/admin/config/services/payment/paypal/profiles/standard/add'
+  defaults:
+    _entity_form: 'paypal_standard_profile.default'
+    _title: 'Add a PayPal Standard profile'
+  requirements:
+    _permission: 'administer paypal payment'
+paypal_payment.paypal_express_profile.add:
+  path: '/admin/config/services/payment/paypal/profiles/express/add'
+  defaults:
+    _entity_form: 'paypal_express_profile.default'
+    _title: 'Add a PayPal Express profile'
+  requirements:
+    _permission: 'administer paypal payment'
+
+entity.paypal_standard_profile.edit_form:
+  path: '/admin/config/services/payment/paypal/profiles/standard/edit/{paypal_standard_profile}'
+  defaults:
+    _entity_form: 'paypal_standard_profile.default'
+    _title: 'Edit a PayPal Standard profile'
+  requirements:
+    _entity_access: 'paypal_standard_profile.update'
+entity.paypal_express_profile.edit_form:
+  path: '/admin/config/services/payment/paypal/profiles/express/edit/{paypal_express_profile}'
+  defaults:
+    _entity_form: 'paypal_express_profile.default'
+    _title: 'Edit a PayPal Express profile'
+  requirements:
+    _entity_access: 'paypal_express_profile.update'
+
+entity.paypal_standard_profile.delete_form:
+  path: '/admin/config/services/payment/paypal/profiles/standard/delete/{paypal_standard_profile}'
+  defaults:
+    _entity_form: 'paypal_standard_profile.delete'
+  requirements:
+    _entity_access: 'paypal_standard_profile.delete'
+entity.paypal_express_profile.delete_form:
+  path: '/admin/config/services/payment/paypal/profiles/express/delete/{paypal_express_profile}'
+  defaults:
+    _entity_form: 'paypal_express_profile.delete'
+  requirements:
+    _entity_access: 'paypal_express_profile.delete'
+
+paypal_payment.redirect:
+  path: '/paypal-payment/redirect/{payment}'
+  defaults:
+    _controller: 'Drupal\paypal_payment\Controller\Redirect::execute'
+    _title: 'PayPal Payment Redirect'
+  requirements:
+    _permission: 'access content'
+
+paypal_payment.webhook:
+  path: '/paypal-payment/webhook/{payment}'
+  defaults:
+    _controller: 'Drupal\paypal_payment\Controller\Webhook::execute'
+    _title: 'PayPal Payment Webhook'
+  requirements:
+    _permission: 'access content'

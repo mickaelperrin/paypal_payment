@@ -1,0 +1,163 @@
+<?php
+
+/**
+ * @file
+ * Contains \Drupal\paypal_payment\Form\PayPalProfileForm.
+ */
+
+namespace Drupal\paypal_payment\Form;
+
+use Drupal\Core\Entity\EntityForm;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslationInterface;
+use Drupal\paypal_payment\Entity\PayPalProfileInterface;
+use Drupal\plugin\Plugin\Plugin\PluginSelector\PluginSelectorManagerInterface;
+use Drupal\plugin\PluginType\PluginTypeManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
+/**
+ * Provides the PayPal profile add/edit form.
+ */
+abstract class PayPalProfileForm extends EntityForm {
+
+  /**
+   * The PayPal profile storage.
+   *
+   * @var EntityStorageInterface
+   */
+  protected $paypalProfileStorage;
+
+  /**
+   * The plugin selector manager.
+   *
+   * @var PluginSelectorManagerInterface
+   */
+  protected $pluginSelectorManager;
+
+  /**
+   * The plugin type manager.
+   *
+   * @var PluginTypeManager
+   */
+  protected $pluginTypeManager;
+
+  /**
+   * Constructs a new instance.
+   *
+   * @param TranslationInterface $string_translation
+   *   The string translator.
+   * @param EntityStorageInterface $paypal_profile_storage
+   *   The PayPal profile storage.
+   * @param PluginSelectorManagerInterface $plugin_selector_manager
+   *   The plugin selector manager.
+   * @param PluginTypeManager $plugin_type_manager
+   *   The plugin type manager.
+   */
+  public function __construct(TranslationInterface $string_translation, EntityStorageInterface $paypal_profile_storage, PluginSelectorManagerInterface $plugin_selector_manager, PluginTypeManager $plugin_type_manager) {
+    $this->paypalProfileStorage = $paypal_profile_storage;
+    $this->pluginSelectorManager = $plugin_selector_manager;
+    $this->pluginTypeManager = $plugin_type_manager;
+    $this->stringTranslation = $string_translation;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function form(array $form, FormStateInterface $form_state) {
+    /** @var PayPalProfileInterface $paypal_profile */
+    $paypal_profile = $this->getEntity();
+    $form['label'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Label'),
+      '#default_value' => $paypal_profile->label(),
+      '#maxlength' => 255,
+      '#required' => TRUE,
+    );
+    $form['id'] = array(
+      '#default_value' => $paypal_profile->id(),
+      '#disabled' => !$paypal_profile->isNew(),
+      '#machine_name' => array(
+        'source' => array('label'),
+        'exists' => array($this, 'PayPalProfileIdExists'),
+      ),
+      '#maxlength' => 255,
+      '#type' => 'machine_name',
+      '#required' => TRUE,
+    );
+    $form['email'] = array(
+      '#type' => 'email',
+      '#title' => $this->t('Email'),
+      '#default_value' => $paypal_profile->getEmail(),
+      '#maxlength' => 255,
+      '#required' => TRUE,
+    );
+    $form['production'] = array(
+      '#type' => 'checkbox',
+      '#title' => $this->t('Production Server'),
+      '#default_value' => $paypal_profile->isProduction(),
+    );
+    $form['capture'] = array(
+      '#type' => 'checkbox',
+      '#title' => $this->t('Automatic Capture'),
+      '#default_value' => $paypal_profile->isCaptureAutomatic(),
+    );
+
+    return parent::form($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    parent::submitForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function copyFormValuesToEntity(EntityInterface $paypal_profile, array $form, FormStateInterface $form_state) {
+    /** @var PayPalProfileInterface $paypal_profile */
+    parent::copyFormValuesToEntity($paypal_profile, $form, $form_state);
+    $values = $form_state->getValues();
+    $paypal_profile->setId($values['id']);
+    $paypal_profile->setLabel($values['label']);
+    $paypal_profile->setEmail($values['email']);
+    $paypal_profile->setProduction($values['production']);
+    $paypal_profile->setCaptureAutomatic($values['capture']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function save(array $form, FormStateInterface $form_state) {
+    $paypal_profile = $this->getEntity();
+    $paypal_profile->save();
+    drupal_set_message($this->t('@label has been saved.', array(
+      '@label' => $paypal_profile->label()
+    )));
+    // TODO: Redirect to the correct collection
+    $form_state->setRedirect('entity.paypal_standard_profile.collection');
+  }
+
+  /**
+   * Checks if a PayPal profile with a particular ID already exists.
+   *
+   * @param string $id
+   *
+   * @return bool
+   */
+  public function paypalProfileIdExists($id) {
+    return (bool) $this->paypalProfileStorage->load($id);
+  }
+
+}

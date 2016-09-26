@@ -1,0 +1,8 @@
+name: 'PayPal Payment'
+description: 'Provides generic PayPal functionality.'
+type: module
+package: Payment
+core: 8.x
+
+dependencies:
+  - payment
