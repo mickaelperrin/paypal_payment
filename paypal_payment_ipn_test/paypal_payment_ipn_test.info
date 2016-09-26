@@ -1,7 +1,0 @@
-name = PayPal IPN tests
-description = Supports PayPal IPN testing.
-package = Payment
-dependencies[] = paypal_payment_ipn
-core = 7.x
-hidden = TRUE
-files[] = includes/PayPalPaymentIPNTestPaymentMethodController.inc
