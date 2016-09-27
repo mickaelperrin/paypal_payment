@@ -26,9 +26,12 @@ namespace Drupal\paypal_payment\Entity;
  *     "label" = "label",
  *   },
  *   config_export = {
+ *     "uuid",
  *     "id",
  *     "label",
- *     "uuid"
+ *     "email",
+ *     "production",
+ *     "autocapture",
  *   },
  *   id = "paypal_standard_profile",
  *   label = @Translation("PayPal Standard Profile"),

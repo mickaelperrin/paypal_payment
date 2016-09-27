@@ -7,11 +7,9 @@
 
 namespace Drupal\paypal_payment\Form;
 
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\paypal_payment\Entity\PayPalExpressProfileInterface;
-use Drupal\paypal_payment\Entity\PayPalProfileInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -57,7 +55,7 @@ class PayPalExpressProfileForm extends PayPalProfileForm {
       '#title' => $this->t('Password'),
       '#default_value' => $paypal_profile->getPassword(),
       '#maxlength' => 255,
-      '#required' => TRUE,
+      '#required' => FALSE,
     );
     $form['signature'] = array(
       '#type' => 'textfield',
@@ -73,13 +71,14 @@ class PayPalExpressProfileForm extends PayPalProfileForm {
   /**
    * {@inheritdoc}
    */
-  protected function copyFormValuesToEntity(EntityInterface $paypal_profile, array $form, FormStateInterface $form_state) {
+  public function save(array $form, FormStateInterface $form_state) {
     /** @var PayPalExpressProfileInterface $paypal_profile */
-    parent::copyFormValuesToEntity($paypal_profile, $form, $form_state);
-    $values = $form_state->getValues();
-    $paypal_profile->setUsername($values['username']);
-    $paypal_profile->setPassword($values['password']);
-    $paypal_profile->setSignature($values['signature']);
+    $paypal_profile = $this->getEntity();
+    if (empty($paypal_profile->getPassword())) {
+      $paypal_profile->setPassword($form['password']['#default_value']);
+    }
+    parent::save($form, $form_state);
+    $form_state->setRedirect('entity.paypal_express_profile.collection');
   }
 
 }

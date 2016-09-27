@@ -12,7 +12,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
 /**
  * Defines a PayPal profile entity.
  */
-abstract class PayPalProfile extends ConfigEntityBase {
+abstract class PayPalProfile extends ConfigEntityBase implements PayPalProfileInterface {
 
   /**
    * The entity's unique machine name.
@@ -42,7 +42,7 @@ abstract class PayPalProfile extends ConfigEntityBase {
    * Flag if automatic capture is enabled.
    * @var bool
    */
-  protected $captureAutomatic;
+  protected $autocapture;
 
   /**
    * @inheritdoc
@@ -107,15 +107,15 @@ abstract class PayPalProfile extends ConfigEntityBase {
   /**
    * @inheritdoc
    */
-  public function isCaptureAutomatic() {
-    return $this->captureAutomatic;
+  public function isAutocapture() {
+    return $this->autocapture;
   }
 
   /**
    * @inheritdoc
    */
-  public function setCaptureAutomatic(bool $captureAutomatic) {
-    $this->captureAutomatic = $captureAutomatic;
+  public function setAutocapture(bool $autocapture) {
+    $this->autocapture = $autocapture;
     return $this;
   }
 

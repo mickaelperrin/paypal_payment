@@ -8,15 +8,12 @@
 namespace Drupal\paypal_payment\Form;
 
 use Drupal\Core\Entity\EntityForm;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\paypal_payment\Entity\PayPalProfileInterface;
 use Drupal\plugin\Plugin\Plugin\PluginSelector\PluginSelectorManagerInterface;
 use Drupal\plugin\PluginType\PluginTypeManager;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides the PayPal profile add/edit form.
@@ -99,54 +96,13 @@ abstract class PayPalProfileForm extends EntityForm {
       '#title' => $this->t('Production Server'),
       '#default_value' => $paypal_profile->isProduction(),
     );
-    $form['capture'] = array(
+    $form['autocapture'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Automatic Capture'),
-      '#default_value' => $paypal_profile->isCaptureAutomatic(),
+      '#default_value' => $paypal_profile->isAutocapture(),
     );
 
     return parent::form($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    parent::submitForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function copyFormValuesToEntity(EntityInterface $paypal_profile, array $form, FormStateInterface $form_state) {
-    /** @var PayPalProfileInterface $paypal_profile */
-    parent::copyFormValuesToEntity($paypal_profile, $form, $form_state);
-    $values = $form_state->getValues();
-    $paypal_profile->setId($values['id']);
-    $paypal_profile->setLabel($values['label']);
-    $paypal_profile->setEmail($values['email']);
-    $paypal_profile->setProduction($values['production']);
-    $paypal_profile->setCaptureAutomatic($values['capture']);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function save(array $form, FormStateInterface $form_state) {
-    $paypal_profile = $this->getEntity();
-    $paypal_profile->save();
-    drupal_set_message($this->t('@label has been saved.', array(
-      '@label' => $paypal_profile->label()
-    )));
-    // TODO: Redirect to the correct collection
-    $form_state->setRedirect('entity.paypal_standard_profile.collection');
   }
 
   /**

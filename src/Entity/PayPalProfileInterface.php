@@ -61,12 +61,12 @@ interface PayPalProfileInterface extends ConfigEntityInterface {
   /**
    * @return boolean
    */
-  public function isCaptureAutomatic();
+  public function isAutocapture();
 
   /**
-   * @param boolean $captureAutomatic
+   * @param boolean $autocapture
    * @return PayPalProfile
    */
-  public function setCaptureAutomatic(bool $captureAutomatic);
+  public function setAutocapture(bool $autocapture);
 
 }
