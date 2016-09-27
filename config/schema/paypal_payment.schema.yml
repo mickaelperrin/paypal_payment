@@ -17,6 +17,7 @@ paypal_payment.paypal_standard_profile.*:
     autocapture:
       type: boolean
       label: Automatic Capture
+
 paypal_payment.paypal_express_profile.*:
   type: config_entity
   label: PayPal Express profile
@@ -45,3 +46,6 @@ paypal_payment.paypal_express_profile.*:
     signature:
       type: text
       label: Signature
+
+plugin.plugin_configuration.payment_method_configuration.paypal_payment_basic:
+  type: plugin.plugin_configuration.payment_method_configuration.payment_basic
