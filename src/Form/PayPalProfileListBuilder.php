@@ -10,6 +10,7 @@ namespace Drupal\paypal_payment\Form;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\paypal_payment\Entity\PayPalExpressProfileInterface;
+use Drupal\paypal_payment\Entity\PayPalStandardProfileInterface;
 
 /**
  * Lists paypal_profile entities.
@@ -21,7 +22,7 @@ class PayPalProfileListBuilder extends EntityListBuilder {
    */
   public function buildHeader() {
     $header['label'] = $this->t('Label');
-    $header['name'] = ($this->entityTypeId == 'paypal_standard_profile') ? $this->t('Email') : $this->t('Username');
+    $header['name'] = ($this->entityTypeId == 'paypal_standard_profile') ? $this->t('Email') : $this->t('Client ID');
 
     return $header + parent::buildHeader();
   }
@@ -30,9 +31,17 @@ class PayPalProfileListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /** @var PayPalExpressProfileInterface $entity */
+    if ($entity instanceof PayPalStandardProfileInterface) {
+      $name = $entity->getEmail();
+    }
+    else if ($entity instanceof PayPalExpressProfileInterface) {
+      $name = $entity->getClientId();
+    }
+    else {
+      $name = '';
+    }
     $row['label'] = $entity->label();
-    $row['name'] = ($this->entityTypeId == 'paypal_standard_profile') ? $entity->getEmail() : $entity->getUsername();
+    $row['name'] = $name;
 
     return $row + parent::buildRow($entity);
   }

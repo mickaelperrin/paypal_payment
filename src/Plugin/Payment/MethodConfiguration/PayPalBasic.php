@@ -37,14 +37,14 @@ class PayPalBasic extends Basic {
   public function processBuildConfigurationForm(array &$element, FormStateInterface $form_state, array &$form) {
     parent::processBuildConfigurationForm($element, $form_state, $form);
 
-    $element['profile'] = array(
+    $element['profile'] = [
       '#type' => 'select',
       '#title' => $this->t('PayPal profile'),
       '#options' => PayPalProfile::loadAllForSelect(),
       '#default_value' => $this->getProfile(),
       '#required' => TRUE,
       '#description' => $this->t('The PayPal profile that will be used to connect to PayPal.'),
-    );
+    ];
 
     return $element;
   }

@@ -9,7 +9,6 @@ namespace Drupal\paypal_payment\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\paypal_payment\Entity\PayPalProfile;
-use Drupal\paypal_payment\Entity\PayPalProfileInterface;
 
 /**
  * TBD.
@@ -27,27 +26,19 @@ class TestForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $paypal_profiles = PayPalProfile::loadMultiple();
-
-    $options = array('' => t('- Select a profile -'));
-    foreach($paypal_profiles as $id => $paypal_profile) {
-      /** @var PayPalProfileInterface $paypal_profile */
-      $options[$paypal_profile->getEmail()] = $paypal_profile->label();
-    }
-
-    $form['email'] = array(
+    $form['profile'] = [
       '#title' => t('PayPal profile'),
       '#type' => 'select',
-      '#options' => $options,
-      '#default_value' => '',
-    );
+      '#options' => PayPalProfile::loadAllForSelect(),
+      '#required' => TRUE,
+    ];
 
-    $form['actions'] = array(
-      'submit' => array(
+    $form['actions'] = [
+      'submit' => [
         '#type' => 'submit',
         '#value' => t('Test'),
-      )
-    );
+      ],
+    ];
 
     return $form;
   }

@@ -29,9 +29,8 @@ namespace Drupal\paypal_payment\Entity;
  *     "uuid",
  *     "id",
  *     "label",
- *     "email",
  *     "production",
- *     "autocapture",
+ *     "email",
  *   },
  *   id = "paypal_standard_profile",
  *   label = @Translation("PayPal Standard Profile"),
@@ -44,6 +43,27 @@ namespace Drupal\paypal_payment\Entity;
  * )
  */
 class PayPalStandardProfile extends PayPalProfile implements PayPalStandardProfileInterface {
+
+  /**
+   * The PayPal email address.
+   * @var string
+   */
+  protected $email;
+
+  /**
+   * @inheritDoc
+   */
+  public function getEmail() {
+    return $this->email;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function setEmail(string $email) {
+    $this->email = $email;
+    return $this;
+  }
 
   /**
    * @inheritDoc

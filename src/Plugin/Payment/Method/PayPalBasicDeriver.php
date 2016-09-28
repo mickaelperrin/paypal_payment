@@ -23,7 +23,7 @@ class PayPalBasicDeriver extends BasicDeriver {
       if ($payment_method->getPluginId() == 'paypal_payment_basic') {
         /** @var \Drupal\paypal_payment\Plugin\Payment\MethodConfiguration\PayPalBasic $configuration_plugin */
         $configuration_plugin = $this->paymentMethodConfigurationManager->createInstance($payment_method->getPluginId(), $payment_method->getPluginConfiguration());
-        $this->derivatives[$payment_method->id()] = array(
+        $this->derivatives[$payment_method->id()] = [
           'id' => $base_plugin_definition['id'] . ':' . $payment_method->id(),
           'active' => $payment_method->status(),
           'label' => $configuration_plugin->getBrandLabel() ? $configuration_plugin->getBrandLabel() : $payment_method->label(),
@@ -35,7 +35,7 @@ class PayPalBasicDeriver extends BasicDeriver {
           'capture_status_id' => $configuration_plugin->getCaptureStatusId(),
           'refund' => $configuration_plugin->getRefund(),
           'refund_status_id' => $configuration_plugin->getRefundStatusId(),
-        ) + $base_plugin_definition;
+        ] + $base_plugin_definition;
       }
     }
 

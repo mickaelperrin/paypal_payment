@@ -48,9 +48,7 @@ class PayPalProfileDeleteForm extends EntityConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return $this->t('Do you really want to delete %label?', array(
-      '%label' => $this->getEntity()->label(),
-    ));
+    return $this->t('Do you really want to delete %label?', ['%label' => $this->getEntity()->label(),]);
   }
 
   /**
@@ -76,9 +74,7 @@ class PayPalProfileDeleteForm extends EntityConfirmFormBase {
       '@id' => $this->getEntity()->id(),
       '%label' => $this->getEntity()->label(),
     ]);
-    drupal_set_message($this->t('%label has been deleted.', array(
-      '%label' => $this->getEntity()->label(),
-    )));
+    drupal_set_message($this->t('%label has been deleted.', ['%label' => $this->getEntity()->label(),]));
     $form_state->setRedirectUrl($this->getEntity()->toUrl('collection'));
   }
 }

@@ -15,34 +15,23 @@ interface PayPalExpressProfileInterface extends PayPalProfileInterface {
   /**
    * @return string
    */
-  public function getUsername();
+  public function getClientId();
 
   /**
-   * @param string $username
+   * @param string $clientId
    * @return PayPalExpressProfile
    */
-  public function setUsername(string $username);
+  public function setClientId(string $clientId);
 
   /**
    * @return string
    */
-  public function getPassword();
+  public function getClientSecret();
 
   /**
-   * @param string $password
+   * @param string $clientSecret
    * @return PayPalExpressProfile
    */
-  public function setPassword(string $password);
-
-  /**
-   * @return string
-   */
-  public function getSignature();
-
-  /**
-   * @param string $signature
-   * @return PayPalExpressProfile
-   */
-  public function setSignature(string $signature);
+  public function setClientSecret(string $clientSecret);
 
 }

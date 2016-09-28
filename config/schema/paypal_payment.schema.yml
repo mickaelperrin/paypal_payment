@@ -8,15 +8,12 @@ paypal_payment.paypal_standard_profile.*:
     label:
       type: label
       label: Label
-    email:
-      type: text
-      label: Email
     production:
       type: boolean
       label: Production Server
-    autocapture:
-      type: boolean
-      label: Automatic Capture
+    email:
+      type: text
+      label: Email
 
 paypal_payment.paypal_express_profile.*:
   type: config_entity
@@ -28,24 +25,15 @@ paypal_payment.paypal_express_profile.*:
     label:
       type: label
       label: Label
-    email:
-      type: text
-      label: Email
     production:
       type: boolean
       label: Production Server
-    autocapture:
-      type: boolean
-      label: Automatic Capture
-    username:
+    clientId:
       type: text
-      label: Username
-    password:
+      label: Client ID
+    clientSecret:
       type: text
-      label: Password
-    signature:
-      type: text
-      label: Signature
+      label: Client Secret
 
 plugin.plugin_configuration.payment_method_configuration.paypal_payment_basic:
   type: plugin.plugin_configuration.payment_method_configuration.payment_basic

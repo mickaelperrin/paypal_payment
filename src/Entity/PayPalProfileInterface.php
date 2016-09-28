@@ -38,17 +38,6 @@ interface PayPalProfileInterface extends ConfigEntityInterface {
   public function setLabel(string $label);
 
   /**
-   * @return string
-   */
-  public function getEmail();
-
-  /**
-   * @param string $email
-   * @return PayPalProfile
-   */
-  public function setEmail(string $email);
-
-  /**
    * @return boolean
    */
   public function isProduction();
@@ -58,17 +47,6 @@ interface PayPalProfileInterface extends ConfigEntityInterface {
    * @return PayPalProfile
    */
   public function setProduction(bool $production);
-
-  /**
-   * @return boolean
-   */
-  public function isAutocapture();
-
-  /**
-   * @param boolean $autocapture
-   * @return PayPalProfile
-   */
-  public function setAutocapture(bool $autocapture);
 
   /**
    * Helper method for getting an APIContext for all calls

@@ -32,12 +32,9 @@ use PayPal\Rest\ApiContext;
  *     "uuid",
  *     "id",
  *     "label",
- *     "email",
  *     "production",
- *     "autocapture",
- *     "username",
- *     "password",
- *     "signature",
+ *     "clientId",
+ *     "clientSecret",
  *   },
  *   id = "paypal_express_profile",
  *   label = @Translation("PayPal Express Profile"),
@@ -52,65 +49,44 @@ use PayPal\Rest\ApiContext;
 class PayPalExpressProfile extends PayPalProfile implements PayPalExpressProfileInterface {
 
   /**
-   * The PayPal username for express checkout.
+   * The PayPal clientId for express checkout.
    * @var string
    */
-  protected $username;
+  protected $clientId;
 
   /**
    * The PayPal password for express checkout.
    * @var string
    */
-  protected $password;
-
-  /**
-   * The PayPal signature for express checkout.
-   * @var string
-   */
-  protected $signature;
+  protected $clientSecret;
 
   /**
    * @inheritdoc
    */
-  public function getUsername() {
-    return $this->username;
+  public function getClientId() {
+    return $this->clientId;
   }
 
   /**
    * @inheritdoc
    */
-  public function setUsername(string $username) {
-    $this->username = $username;
+  public function setClientId(string $clientId) {
+    $this->clientId = $clientId;
     return $this;
   }
 
   /**
    * @inheritdoc
    */
-  public function getPassword() {
-    return $this->password;
+  public function getClientSecret() {
+    return $this->clientSecret;
   }
 
   /**
    * @inheritdoc
    */
-  public function setPassword(string $password) {
-    $this->password = $password;
-    return $this;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function getSignature() {
-    return $this->signature;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public function setSignature(string $signature) {
-    $this->signature = $signature;
+  public function setClientSecret(string $clientSecret) {
+    $this->clientSecret = $clientSecret;
     return $this;
   }
 
@@ -120,20 +96,16 @@ class PayPalExpressProfile extends PayPalProfile implements PayPalExpressProfile
   public function getApiContext() {
     $apiContext = new ApiContext(
       new OAuthTokenCredential(
-        $this->getUsername(),
-        $this->getPassword()
+        $this->getClientId(),
+        $this->getClientSecret()
       )
     );
 
-    $apiContext->setConfig(
-      array(
-        'mode' => 'sandbox',
-        'log.LogEnabled' => TRUE,
-        'log.FileName' => '/tmp/PayPal.log',
-        'log.LogLevel' => 'DEBUG',
-        'cache.enabled' => FALSE,
-      )
-    );
+    $apiContext->setConfig([
+      'mode' => $this->isProduction() ? 'live' : 'sandbox',
+      'log.LogEnabled' => FALSE,
+      'cache.enabled' => FALSE,
+    ]);
 
     return $apiContext;
   }

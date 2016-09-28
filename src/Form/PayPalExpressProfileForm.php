@@ -36,47 +36,31 @@ class PayPalExpressProfileForm extends PayPalProfileForm {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-    $form = parent::form($form, $form_state);
-
-    $form['email']['#required'] = FALSE;
-
     /** @var PayPalExpressProfileInterface $paypal_profile */
     $paypal_profile = $this->getEntity();
 
-    $form['username'] = array(
+    $form['clientId'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Username'),
-      '#default_value' => $paypal_profile->getUsername(),
+      '#title' => $this->t('Client ID'),
+      '#default_value' => $paypal_profile->getClientId(),
       '#maxlength' => 255,
       '#required' => TRUE,
-    );
-    $form['password'] = array(
-      '#type' => 'password',
-      '#title' => $this->t('Password'),
-      '#default_value' => $paypal_profile->getPassword(),
-      '#maxlength' => 255,
-      '#required' => FALSE,
-    );
-    $form['signature'] = array(
+    ];
+    $form['clientSecret'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Signature'),
-      '#default_value' => $paypal_profile->getSignature(),
+      '#title' => $this->t('Client Secret'),
+      '#default_value' => $paypal_profile->getClientSecret(),
       '#maxlength' => 255,
       '#required' => TRUE,
-    );
+    ];
 
-    return $form;
+    return parent::form($form, $form_state);
   }
 
   /**
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    /** @var PayPalExpressProfileInterface $paypal_profile */
-    $paypal_profile = $this->getEntity();
-    if (empty($paypal_profile->getPassword())) {
-      $paypal_profile->setPassword($form['password']['#default_value']);
-    }
     parent::save($form, $form_state);
     $form_state->setRedirect('entity.paypal_express_profile.collection');
   }

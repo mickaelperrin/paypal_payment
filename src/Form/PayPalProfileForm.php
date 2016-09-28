@@ -66,41 +66,29 @@ abstract class PayPalProfileForm extends EntityForm {
   public function form(array $form, FormStateInterface $form_state) {
     /** @var PayPalProfileInterface $paypal_profile */
     $paypal_profile = $this->getEntity();
-    $form['label'] = array(
+    $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Label'),
       '#default_value' => $paypal_profile->label(),
       '#maxlength' => 255,
       '#required' => TRUE,
-    );
-    $form['id'] = array(
+    ];
+    $form['id'] = [
       '#default_value' => $paypal_profile->id(),
       '#disabled' => !$paypal_profile->isNew(),
-      '#machine_name' => array(
-        'source' => array('label'),
-        'exists' => array($this, 'PayPalProfileIdExists'),
-      ),
+      '#machine_name' => [
+        'source' => ['label'],
+        'exists' => [$this, 'PayPalProfileIdExists'],
+      ],
       '#maxlength' => 255,
       '#type' => 'machine_name',
       '#required' => TRUE,
-    );
-    $form['email'] = array(
-      '#type' => 'email',
-      '#title' => $this->t('Email'),
-      '#default_value' => $paypal_profile->getEmail(),
-      '#maxlength' => 255,
-      '#required' => TRUE,
-    );
-    $form['production'] = array(
+    ];
+    $form['production'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Production Server'),
       '#default_value' => $paypal_profile->isProduction(),
-    );
-    $form['autocapture'] = array(
-      '#type' => 'checkbox',
-      '#title' => $this->t('Automatic Capture'),
-      '#default_value' => $paypal_profile->isAutocapture(),
-    );
+    ];
 
     return parent::form($form, $form_state);
   }

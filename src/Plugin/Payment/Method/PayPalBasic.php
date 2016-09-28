@@ -56,10 +56,10 @@ class PayPalBasic extends Basic {
     }
 
     $redirect = new Url('paypal_payment.redirect',
-      array('payment' => $this->getPayment()->id()), array('absolute' => TRUE));
+      ['payment' => $this->getPayment()->id()], ['absolute' => TRUE]);
     $redirectUrl = $redirect->toString(TRUE)->getGeneratedUrl();
     $webhookUrl = new Url('paypal_payment.webhook',
-      array('payment' => $this->getPayment()->id()), array('absolute' => TRUE));
+      ['payment' => $this->getPayment()->id()], ['absolute' => TRUE]);
 
     $redirectUrls = new RedirectUrls();
     $redirectUrls->setReturnUrl($redirectUrl)
@@ -79,7 +79,7 @@ class PayPalBasic extends Basic {
     $payment->setIntent("sale")
       ->setPayer($payer)
       ->setRedirectUrls($redirectUrls)
-      ->setTransactions(array($transaction));
+      ->setTransactions([$transaction]);
 
     try {
       $payment->create($profile->getApiContext());
