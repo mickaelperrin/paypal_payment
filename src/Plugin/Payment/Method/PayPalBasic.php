@@ -40,7 +40,7 @@ class PayPalBasic extends Basic {
     $profile = PayPalProfile::loadOne($this->pluginDefinition['profile']);
 
     $payer = new Payer();
-    $payer->setPaymentMethod("paypal");
+    $payer->setPaymentMethod('paypal');
 
     $itemList = new ItemList();
     $totalAmount = 0;
@@ -66,7 +66,7 @@ class PayPalBasic extends Basic {
       ->setCancelUrl($redirectUrl);
 
     $amount = new Amount();
-    $amount->setCurrency("USD")
+    $amount->setCurrency('USD')
       ->setTotal($totalAmount);
 
     $transaction = new Transaction();
@@ -76,7 +76,7 @@ class PayPalBasic extends Basic {
       ->setInvoiceNumber($this->getPayment()->id());
 
     $payment = new Payment();
-    $payment->setIntent("sale")
+    $payment->setIntent('sale')
       ->setPayer($payer)
       ->setRedirectUrls($redirectUrls)
       ->setTransactions([$transaction]);
