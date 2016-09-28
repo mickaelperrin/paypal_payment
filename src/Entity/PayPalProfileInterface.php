@@ -8,6 +8,7 @@
 namespace Drupal\paypal_payment\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
+use PayPal\Rest\ApiContext;
 
 /**
  * Defines PayPal profiles.
@@ -68,5 +69,23 @@ interface PayPalProfileInterface extends ConfigEntityInterface {
    * @return PayPalProfile
    */
   public function setAutocapture(bool $autocapture);
+
+  /**
+   * Helper method for getting an APIContext for all calls
+   *
+   * @return ApiContext
+   */
+  public function getApiContext();
+
+  /**
+   * @return PayPalProfileInterface[]
+   */
+  public static function loadAll();
+
+  /**
+   * @param bool $includeNone
+   * @return array
+   */
+  public static function loadAllForSelect($includeNone = TRUE);
 
 }

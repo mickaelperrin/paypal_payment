@@ -27,6 +27,7 @@ class PayPalBasicDeriver extends BasicDeriver {
           'id' => $base_plugin_definition['id'] . ':' . $payment_method->id(),
           'active' => $payment_method->status(),
           'label' => $configuration_plugin->getBrandLabel() ? $configuration_plugin->getBrandLabel() : $payment_method->label(),
+          'profile' => $configuration_plugin->getProfile(),
           'message_text' => $configuration_plugin->getMessageText(),
           'message_text_format' => $configuration_plugin->getMessageTextFormat(),
           'execute_status_id' => $configuration_plugin->getExecuteStatusId(),

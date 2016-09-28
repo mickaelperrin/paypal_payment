@@ -7,6 +7,9 @@
 
 namespace Drupal\paypal_payment\Entity;
 
+use PayPal\Auth\OAuthTokenCredential;
+use PayPal\Rest\ApiContext;
+
 /**
  * Defines a PayPal express profile entity.
  *
@@ -109,6 +112,30 @@ class PayPalExpressProfile extends PayPalProfile implements PayPalExpressProfile
   public function setSignature(string $signature) {
     $this->signature = $signature;
     return $this;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public function getApiContext() {
+    $apiContext = new ApiContext(
+      new OAuthTokenCredential(
+        $this->getUsername(),
+        $this->getPassword()
+      )
+    );
+
+    $apiContext->setConfig(
+      array(
+        'mode' => 'sandbox',
+        'log.LogEnabled' => TRUE,
+        'log.FileName' => '/tmp/PayPal.log',
+        'log.LogLevel' => 'DEBUG',
+        'cache.enabled' => FALSE,
+      )
+    );
+
+    return $apiContext;
   }
 
 }

@@ -45,4 +45,11 @@ namespace Drupal\paypal_payment\Entity;
  */
 class PayPalStandardProfile extends PayPalProfile implements PayPalStandardProfileInterface {
 
+  /**
+   * @inheritDoc
+   */
+  public function getApiContext() {
+    // TODO: Implement getApiContext() method.
+  }
+
 }

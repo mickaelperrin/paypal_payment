@@ -119,4 +119,31 @@ abstract class PayPalProfile extends ConfigEntityBase implements PayPalProfileIn
     return $this;
   }
 
+  /**
+   * @inheritDoc
+   */
+  public static function loadOne($id) {
+    $profile = PayPalStandardProfile::load($id);
+    return $profile ? $profile : PayPalExpressProfile::load($id);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public static function loadAll() {
+    return array_merge(PayPalStandardProfile::loadMultiple(), PayPalExpressProfile::loadMultiple());
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public static function loadAllForSelect($includeNone = TRUE) {
+    $options = array('' => t('- Select a profile -'));
+    foreach(self::loadAll() as $id => $paypal_profile) {
+      /** @var PayPalProfile $paypal_profile */
+      $options[$id] = $paypal_profile->label();
+    }
+    return $options;
+  }
+
 }
