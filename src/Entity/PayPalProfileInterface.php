@@ -56,6 +56,12 @@ interface PayPalProfileInterface extends ConfigEntityInterface {
   public function getApiContext();
 
   /**
+   * @param string $id
+   * @return PayPalProfileInterface
+   */
+  public static function loadOne($id);
+
+  /**
    * @return PayPalProfileInterface[]
    */
   public static function loadAll();

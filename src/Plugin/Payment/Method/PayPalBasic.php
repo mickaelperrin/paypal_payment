@@ -12,7 +12,6 @@ use Drupal\payment\Plugin\Payment\Method\Basic;
 use Drupal\payment\Response\Response;
 use Drupal\paypal_payment\Entity\PayPalProfile;
 use Drupal\paypal_payment\Entity\PayPalProfileInterface;
-
 use PayPal\Api\Amount;
 use PayPal\Api\Item;
 use PayPal\Api\ItemList;
@@ -33,11 +32,29 @@ use PayPal\Api\Transaction;
 class PayPalBasic extends Basic {
 
   /**
+   * Get the PayPal profile to use.
+   *
+   * @return PayPalProfileInterface
+   */
+  public function getProfile() {
+    return PayPalProfile::loadOne($this->pluginDefinition['profile']);
+  }
+
+  public function validatePaymentId($paymentId) {
+    return ($paymentId === $this->configuration['paymentID']);
+  }
+
+  private function setPaymentId($paymentId) {
+    $this->configuration['paymentID'] = $paymentId;
+    $this->getPayment()->save();
+  }
+
+  /**
    * @inheritDoc
    */
   public function getPaymentExecutionResult() {
     /** @var PayPalProfileInterface $profile */
-    $profile = PayPalProfile::loadOne($this->pluginDefinition['profile']);
+    $profile = $this->getProfile();
 
     $payer = new Payer();
     $payer->setPaymentMethod('paypal');
@@ -55,15 +72,17 @@ class PayPalBasic extends Basic {
       $itemList->addItem($item);
     }
 
-    $redirect = new Url('paypal_payment.redirect',
+    $redirectSuccess = new Url('paypal_payment.redirect.success',
       ['payment' => $this->getPayment()->id()], ['absolute' => TRUE]);
-    $redirectUrl = $redirect->toString(TRUE)->getGeneratedUrl();
-    $webhookUrl = new Url('paypal_payment.webhook',
+    $redirectCancel = new Url('paypal_payment.redirect.cancel',
       ['payment' => $this->getPayment()->id()], ['absolute' => TRUE]);
+    $webhook = new Url('paypal_payment.webhook',
+      ['payment' => $this->getPayment()->id()], ['absolute' => TRUE]);
+    $webhoookUrl = $webhook->toString(TRUE)->getGeneratedUrl();
 
     $redirectUrls = new RedirectUrls();
-    $redirectUrls->setReturnUrl($redirectUrl)
-      ->setCancelUrl($redirectUrl);
+    $redirectUrls->setReturnUrl($redirectSuccess->toString(TRUE)->getGeneratedUrl())
+      ->setCancelUrl($redirectCancel->toString(TRUE)->getGeneratedUrl());
 
     $amount = new Amount();
     $amount->setCurrency('USD')
@@ -73,7 +92,8 @@ class PayPalBasic extends Basic {
     $transaction->setAmount($amount)
       ->setItemList($itemList)
       ->setDescription($this->getPayment()->id())
-      ->setInvoiceNumber($this->getPayment()->id());
+      ->setInvoiceNumber($this->getPayment()->id())
+      ->setNotifyUrl($webhoookUrl);
 
     $payment = new Payment();
     $payment->setIntent('sale')
@@ -83,14 +103,13 @@ class PayPalBasic extends Basic {
 
     try {
       $payment->create($profile->getApiContext());
+      $this->setPaymentId($payment->getId());
     } catch (\Exception $ex) {
       // TODO: Error handling
       exit;
     }
 
-    $link = $payment->getApprovalLink();
-    $links = $payment->getLinks();
-    $url = Url::fromUri($link);
+    $url = Url::fromUri($payment->getApprovalLink());
     $response = new Response($url);
     return new OperationResult($response);
   }

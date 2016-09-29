@@ -7,6 +7,7 @@
 
 namespace Drupal\paypal_payment\Entity;
 
+use Drupal\Core\PhpStorage\PhpStorageFactory;
 use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Rest\ApiContext;
 
@@ -101,10 +102,20 @@ class PayPalExpressProfile extends PayPalProfile implements PayPalExpressProfile
       )
     );
 
+    // TODO: Test caching
+    $storage = PhpStorageFactory::get('paypal_api_context');
+    if (!$storage->exists('auth.cache')) {
+      $storage->save('auth.cache', '');
+    }
+
+    // TODO: Make logging configurable
     $apiContext->setConfig([
       'mode' => $this->isProduction() ? 'live' : 'sandbox',
-      'log.LogEnabled' => FALSE,
-      'cache.enabled' => FALSE,
+      'log.LogEnabled' => TRUE,
+      'log.FileName' => '/tmp/PayPal.log',
+      'log.LogLevel' => 'DEBUG',
+      'cache.enabled' => TRUE,
+      'cache.FileName' => DRUPAL_ROOT . '/' . $storage->getFullPath('auth.cache'),
     ]);
 
     return $apiContext;

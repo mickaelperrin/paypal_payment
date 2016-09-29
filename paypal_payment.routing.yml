@@ -72,10 +72,17 @@ entity.paypal_express_profile.delete_form:
   requirements:
     _entity_access: 'paypal_express_profile.delete'
 
-paypal_payment.redirect:
-  path: '/paypal-payment/redirect/{payment}'
+paypal_payment.redirect.success:
+  path: '/paypal-payment/redirect/success/{payment}'
   defaults:
     _controller: 'Drupal\paypal_payment\Controller\Redirect::execute'
+    _title: 'PayPal Payment Redirect'
+  requirements:
+    _custom_access: '\Drupal\paypal_payment\Controller\Redirect::access'
+paypal_payment.redirect.cancel:
+  path: '/paypal-payment/redirect/cancel/{payment}'
+  defaults:
+    _controller: 'Drupal\paypal_payment\Controller\Redirect::cancel'
     _title: 'PayPal Payment Redirect'
   requirements:
     _permission: 'access content'
@@ -86,4 +93,4 @@ paypal_payment.webhook:
     _controller: 'Drupal\paypal_payment\Controller\Webhook::execute'
     _title: 'PayPal Payment Webhook'
   requirements:
-    _permission: 'access content'
+    _custom_access: '\Drupal\paypal_payment\Controller\Webhook::access'
