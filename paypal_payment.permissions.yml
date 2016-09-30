@@ -1,4 +1,4 @@
-administer paypal payment:
+paypal_payment.administer:
   title: 'Administer PayPal Payment'
   description: 'Perform adminstrative tasks for PayPal Payment.'
   restrict access: TRUE

@@ -4,7 +4,7 @@ paypal_payment.admin:
     _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
     _title: 'PayPal Payment'
   requirements:
-    _permission: 'administer paypal payment'
+    _permission: 'paypal_payment.administer'
 
 paypal_payment.test:
   path: '/admin/config/services/payment/paypal/connection-test'
@@ -12,7 +12,7 @@ paypal_payment.test:
     _form: '\Drupal\paypal_payment\Form\TestForm'
     _title: 'Test PayPal connection'
   requirements:
-    _permission: 'administer paypal payment'
+    _permission: 'paypal_payment.administer'
 
 entity.paypal_standard_profile.collection:
   path: '/admin/config/services/payment/paypal/profiles/standard'
@@ -20,14 +20,14 @@ entity.paypal_standard_profile.collection:
     _entity_list: 'paypal_standard_profile'
     _title: 'PayPal Standard profiles'
   requirements:
-    _permission: 'administer paypal payment'
+    _permission: 'paypal_payment.administer'
 entity.paypal_express_profile.collection:
   path: '/admin/config/services/payment/paypal/profiles/express'
   defaults:
     _entity_list: 'paypal_express_profile'
     _title: 'PayPal Express profiles'
   requirements:
-    _permission: 'administer paypal payment'
+    _permission: 'paypal_payment.administer'
 
 paypal_payment.paypal_standard_profile.add:
   path: '/admin/config/services/payment/paypal/profiles/standard/add'
@@ -35,14 +35,14 @@ paypal_payment.paypal_standard_profile.add:
     _entity_form: 'paypal_standard_profile.default'
     _title: 'Add a PayPal Standard profile'
   requirements:
-    _permission: 'administer paypal payment'
+    _permission: 'paypal_payment.administer'
 paypal_payment.paypal_express_profile.add:
   path: '/admin/config/services/payment/paypal/profiles/express/add'
   defaults:
     _entity_form: 'paypal_express_profile.default'
     _title: 'Add a PayPal Express profile'
   requirements:
-    _permission: 'administer paypal payment'
+    _permission: 'paypal_payment.administer'
 
 entity.paypal_standard_profile.edit_form:
   path: '/admin/config/services/payment/paypal/profiles/standard/edit/{paypal_standard_profile}'
