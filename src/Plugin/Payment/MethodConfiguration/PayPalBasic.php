@@ -9,26 +9,19 @@ namespace Drupal\paypal_payment\Plugin\Payment\MethodConfiguration;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\payment\Plugin\Payment\MethodConfiguration\Basic;
-use Drupal\paypal_payment\Entity\PayPalProfile;
 
 /**
- * Provides the configuration for the paypal_payment_basic payment method plugin.
- *
- * @PaymentMethodConfiguration(
- *   description = @Translation("PayPal payment method type."),
- *   id = "paypal_payment_basic",
- *   label = @Translation("PayPal")
- * )
+ * Abstract class for PayPal payment method configurations.
  */
-class PayPalBasic extends Basic {
+abstract class PayPalBasic extends Basic {
 
   /**
-   * Gets the PayPal profile.
+   * Gets the setting for the production server.
    *
-   * @return string
+   * @return bool
    */
-  public function getProfile() {
-    return isset($this->configuration['profile']) ? $this->configuration['profile'] : '';
+  public function isProduction() {
+    return !empty($this->configuration['production']);
   }
 
   /**
@@ -37,13 +30,13 @@ class PayPalBasic extends Basic {
   public function processBuildConfigurationForm(array &$element, FormStateInterface $form_state, array &$form) {
     parent::processBuildConfigurationForm($element, $form_state, $form);
 
-    $element['profile'] = [
-      '#type' => 'select',
-      '#title' => $this->t('PayPal profile'),
-      '#options' => PayPalProfile::loadAllForSelect(),
-      '#default_value' => $this->getProfile(),
-      '#required' => TRUE,
-      '#description' => $this->t('The PayPal profile that will be used to connect to PayPal.'),
+    $element['paypal'] = [
+      '#type' => 'container',
+    ];
+    $element['paypal']['production'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Production Server'),
+      '#default_value' => $this->isProduction(),
     ];
 
     return $element;
@@ -55,11 +48,20 @@ class PayPalBasic extends Basic {
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     parent::submitConfigurationForm($form, $form_state);
 
-    $parents = $form['plugin_form']['profile']['#parents'];
+    $parents = $form['plugin_form']['paypal']['#parents'];
     array_pop($parents);
     $values = $form_state->getValues();
     $values = NestedArray::getValue($values, $parents);
-    $this->configuration['profile'] = $values['profile'];
+    $this->configuration['production'] = !empty($values['production']);
+  }
+
+  /**
+   * @return array
+   */
+  public function getDerivativeConfiguration() {
+    return [
+      'production' => $this->isProduction(),
+    ];
   }
 
 }

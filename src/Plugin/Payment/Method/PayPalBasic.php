@@ -10,8 +10,6 @@ use Drupal\Core\Url;
 use Drupal\payment\OperationResult;
 use Drupal\payment\Plugin\Payment\Method\Basic;
 use Drupal\payment\Response\Response;
-use Drupal\paypal_payment\Entity\PayPalProfile;
-use Drupal\paypal_payment\Entity\PayPalProfileInterface;
 use PayPal\Api\Amount;
 use PayPal\Api\Item;
 use PayPal\Api\ItemList;
@@ -19,30 +17,17 @@ use PayPal\Api\Payer;
 use PayPal\Api\Payment;
 use PayPal\Api\RedirectUrls;
 use PayPal\Api\Transaction;
+use PayPal\Rest\ApiContext;
 
 /**
- * PayPal payment method.
- *
- * @PaymentMethod(
- *   deriver = "\Drupal\paypal_payment\Plugin\Payment\Method\PayPalBasicDeriver",
- *   id = "paypal_payment_basic",
- *   operations_provider = "\Drupal\paypal_payment\Plugin\Payment\Method\PayPalBasicOperationsProvider",
- * )
+ * Abstract class for PayPal payment methods.
  */
-class PayPalBasic extends Basic {
+abstract class PayPalBasic extends Basic {
 
   /**
-   * Get the PayPal profile to use.
-   *
-   * @return PayPalProfileInterface
+   * @return ApiContext
    */
-  public function getProfile() {
-    return PayPalProfile::loadOne($this->pluginDefinition['profile']);
-  }
-
-  public function validatePaymentId($paymentId) {
-    return ($paymentId === $this->configuration['paymentID']);
-  }
+  abstract public function getApiContext();
 
   private function setPaymentId($paymentId) {
     $this->configuration['paymentID'] = $paymentId;
@@ -53,9 +38,6 @@ class PayPalBasic extends Basic {
    * @inheritDoc
    */
   public function getPaymentExecutionResult() {
-    /** @var PayPalProfileInterface $profile */
-    $profile = $this->getProfile();
-
     $payer = new Payer();
     $payer->setPaymentMethod('paypal');
 
@@ -102,7 +84,7 @@ class PayPalBasic extends Basic {
       ->setTransactions([$transaction]);
 
     try {
-      $payment->create($profile->getApiContext());
+      $payment->create($this->getApiContext());
       $this->setPaymentId($payment->getId());
     } catch (\Exception $ex) {
       // TODO: Error handling

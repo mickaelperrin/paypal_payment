@@ -9,9 +9,16 @@ namespace Drupal\paypal_payment\Plugin\Payment\Method;
 use Drupal\payment\Plugin\Payment\Method\BasicDeriver;
 
 /**
- * Derives payment method plugin definitions based on configuration entities.
+ * Abstract class for PayPal payment method derivers.
  */
-class PayPalBasicDeriver extends BasicDeriver {
+abstract class PayPalBasicDeriver extends BasicDeriver {
+
+  /**
+   * TODO: Is there a built in way to determine this id from the deriver?
+   *
+   * @return string
+   */
+  abstract protected function getId();
 
   /**
    * {@inheritdoc}
@@ -20,14 +27,13 @@ class PayPalBasicDeriver extends BasicDeriver {
     /** @var \Drupal\payment\Entity\PaymentMethodConfigurationInterface[] $payment_methods */
     $payment_methods = $this->paymentMethodConfigurationStorage->loadMultiple();
     foreach ($payment_methods as $payment_method) {
-      if ($payment_method->getPluginId() == 'paypal_payment_basic') {
+      if ($payment_method->getPluginId() == $this->getId()) {
         /** @var \Drupal\paypal_payment\Plugin\Payment\MethodConfiguration\PayPalBasic $configuration_plugin */
         $configuration_plugin = $this->paymentMethodConfigurationManager->createInstance($payment_method->getPluginId(), $payment_method->getPluginConfiguration());
         $this->derivatives[$payment_method->id()] = [
           'id' => $base_plugin_definition['id'] . ':' . $payment_method->id(),
           'active' => $payment_method->status(),
           'label' => $configuration_plugin->getBrandLabel() ? $configuration_plugin->getBrandLabel() : $payment_method->label(),
-          'profile' => $configuration_plugin->getProfile(),
           'message_text' => $configuration_plugin->getMessageText(),
           'message_text_format' => $configuration_plugin->getMessageTextFormat(),
           'execute_status_id' => $configuration_plugin->getExecuteStatusId(),
@@ -35,7 +41,7 @@ class PayPalBasicDeriver extends BasicDeriver {
           'capture_status_id' => $configuration_plugin->getCaptureStatusId(),
           'refund' => $configuration_plugin->getRefund(),
           'refund_status_id' => $configuration_plugin->getRefundStatusId(),
-        ] + $base_plugin_definition;
+        ] + $configuration_plugin->getDerivativeConfiguration() + $base_plugin_definition;
       }
     }
 

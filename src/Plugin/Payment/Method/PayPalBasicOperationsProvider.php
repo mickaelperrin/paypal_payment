@@ -9,15 +9,15 @@ namespace Drupal\paypal_payment\Plugin\Payment\Method;
 use Drupal\payment\Plugin\Payment\Method\BasicOperationsProvider;
 
 /**
- * Provides paypal_payment_basic operations based on config entities.
+ * Abstract class for PayPal payment method operation providers.
  */
-class PayPalBasicOperationsProvider extends BasicOperationsProvider {
+abstract class PayPalBasicOperationsProvider extends BasicOperationsProvider {
 
   /**
    * {@inheritdoc}
    */
   protected function getPaymentMethodConfiguration($plugin_id) {
-    $entity_id = substr($plugin_id, 21);
+    $entity_id = explode(':', $plugin_id)[1];
 
     return $this->paymentMethodConfigurationStorage->load($entity_id);
   }

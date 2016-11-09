@@ -7,27 +7,17 @@
 
 namespace Drupal\paypal_payment\Controller;
 
-use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Controller\ControllerBase;
 use Drupal\payment\Entity\PaymentInterface;
-use Drupal\paypal_payment\Entity\PayPalProfileInterface;
 use Drupal\paypal_payment\Plugin\Payment\Method\PayPalBasic;
 use PayPal\Api\Payment;
 use PayPal\Api\PaymentExecution;
+use PayPal\Rest\ApiContext;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Handles the "redirect" route.
  */
-class Redirect extends ControllerBase {
-
-  public function access(PaymentInterface $payment) {
-    $request = \Drupal::request();
-    $paymentId = $request->get('paymentId');
-    /** @var PayPalBasic $payment_method */
-    $payment_method = $payment->getPaymentMethod();
-    return AccessResult::allowedIf($payment_method->validatePaymentId($paymentId));
-  }
+class Redirect extends Base {
 
   /**
    * PayPal is redirecting the visitor here after the payment process. At this
@@ -44,16 +34,14 @@ class Redirect extends ControllerBase {
 
     /** @var PayPalBasic $payment_method */
     $payment_method = $payment->getPaymentMethod();
-    /** @var PayPalProfileInterface $profile */
-    $profile = $payment_method->getProfile();
+    /** @var ApiContext $api_context */
+    $api_context = $payment_method->getApiContext();
 
-    $apiContext = $profile->getApiContext();
-
-    $p = Payment::get($paymentId, $apiContext);
+    $p = Payment::get($paymentId, $api_context);
     $execution = new PaymentExecution();
     $execution->setPayerId($payerID);
     try {
-      $p->execute($execution, $apiContext);
+      $p->execute($execution, $api_context);
       $payment_method->doCapturePayment();
     } catch (\Exception $ex) {
       // TODO: Error handling

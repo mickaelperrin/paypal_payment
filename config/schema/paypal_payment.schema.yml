@@ -1,39 +1,5 @@
-paypal_payment.paypal_standard_profile.*:
-  type: config_entity
-  label: PayPal Standard profile
-  mapping:
-    id:
-      type: string
-      label: ID
-    label:
-      type: label
-      label: Label
-    production:
-      type: boolean
-      label: Production Server
-    email:
-      type: text
-      label: Email
+plugin.plugin_configuration.payment_method_configuration.paypal_payment_standard:
+  type: plugin.plugin_configuration.payment_method_configuration.payment_basic
 
-paypal_payment.paypal_express_profile.*:
-  type: config_entity
-  label: PayPal Express profile
-  mapping:
-    id:
-      type: string
-      label: ID
-    label:
-      type: label
-      label: Label
-    production:
-      type: boolean
-      label: Production Server
-    clientId:
-      type: text
-      label: Client ID
-    clientSecret:
-      type: text
-      label: Client Secret
-
-plugin.plugin_configuration.payment_method_configuration.paypal_payment_basic:
+plugin.plugin_configuration.payment_method_configuration.paypal_payment_express:
   type: plugin.plugin_configuration.payment_method_configuration.payment_basic
