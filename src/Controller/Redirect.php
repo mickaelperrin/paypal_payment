@@ -20,6 +20,13 @@ use Symfony\Component\HttpFoundation\Response;
 class Redirect extends Base {
 
   /**
+   * @inheritDoc
+   */
+  protected function verify(PaymentInterface $payment) {
+    return ($payment->getOwnerId() == \Drupal::currentUser()->id());
+  }
+
+  /**
    * PayPal is redirecting the visitor here after the payment process. At this
    * point we don't know the status of the payment yet so we can only load
    * the payment and give control back to the payment context.
