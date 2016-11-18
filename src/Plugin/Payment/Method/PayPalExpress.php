@@ -25,7 +25,7 @@ class PayPalExpress extends PayPalBasic {
    * {@inheritdoc}
    */
   public function getApiContext() {
-    $configuration = $this->getConfiguration();
+    $configuration = $this->getPluginDefinition();
     $apiContext = new ApiContext(
       new OAuthTokenCredential(
         $configuration['clientId'],
