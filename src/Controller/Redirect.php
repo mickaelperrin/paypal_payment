@@ -23,7 +23,13 @@ class Redirect extends Base {
    * @inheritDoc
    */
   protected function verify(PaymentInterface $payment) {
-    return ($payment->getOwnerId() == \Drupal::currentUser()->id());
+    $request = \Drupal::request();
+    /** @var PayPalBasic $payment_method */
+    $payment_method = $payment->getPaymentMethod();
+    return (
+      $payment->getOwnerId() == \Drupal::currentUser()->id() &&
+      $request->get('paymentId') == $payment_method->getPaymentId()
+    );
   }
 
   /**

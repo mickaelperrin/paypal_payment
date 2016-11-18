@@ -34,6 +34,10 @@ abstract class PayPalBasic extends Basic {
     $this->getPayment()->save();
   }
 
+  public function getPaymentId() {
+    return isset($this->configuration['paymentID']) ? $this->configuration['paymentID'] : NULL;
+  }
+
   /**
    * @inheritDoc
    */
