@@ -24,7 +24,7 @@ class PayPalExpress extends PayPalBasic {
   /**
    * {@inheritdoc}
    */
-  public function getApiContext() {
+  public function getApiContext($type) {
     $configuration = $this->getPluginDefinition();
     $apiContext = new ApiContext(
       new OAuthTokenCredential(
@@ -33,18 +33,16 @@ class PayPalExpress extends PayPalBasic {
       )
     );
 
-    // TODO: Test caching
     $storage = PhpStorageFactory::get('paypal_api_context');
     if (!$storage->exists('auth.cache')) {
       $storage->save('auth.cache', '');
     }
 
-    // TODO: Make logging configurable
     $apiContext->setConfig([
       'mode' => $configuration['production'] ? 'live' : 'sandbox',
-      'log.LogEnabled' => TRUE,
-      'log.FileName' => '/tmp/PayPal.log',
-      'log.LogLevel' => 'DEBUG',
+      'log.LogEnabled' => $configuration['logging'][$type],
+      'log.FileName' => file_directory_temp() . '/DrupalPayPal.log',
+      'log.LogLevel' => $configuration['loglevel'],
       'cache.enabled' => TRUE,
       'cache.FileName' => DRUPAL_ROOT . '/' . $storage->getFullPath('auth.cache'),
     ]);

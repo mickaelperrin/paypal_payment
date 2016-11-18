@@ -24,10 +24,15 @@ use PayPal\Rest\ApiContext;
  */
 abstract class PayPalBasic extends Basic {
 
+  const PAYPAL_CONTEXT_TYPE_CREATE   = 'create';
+  const PAYPAL_CONTEXT_TYPE_WEBHOOK  = 'webhook';
+  const PAYPAL_CONTEXT_TYPE_REDIRECT = 'redirect';
+
   /**
-   * @return ApiContext
+   * @param string $type
+   * @return \PayPal\Rest\ApiContext
    */
-  abstract public function getApiContext();
+  abstract public function getApiContext($type);
 
   private function setPaymentId($paymentId) {
     $this->configuration['paymentID'] = $paymentId;
@@ -88,7 +93,7 @@ abstract class PayPalBasic extends Basic {
       ->setTransactions([$transaction]);
 
     try {
-      $payment->create($this->getApiContext());
+      $payment->create($this->getApiContext(self::PAYPAL_CONTEXT_TYPE_CREATE));
       $this->setPaymentId($payment->getId());
     } catch (\Exception $ex) {
       // TODO: Error handling

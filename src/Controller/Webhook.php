@@ -28,7 +28,7 @@ class Webhook extends Base {
     $resource = new VerifyWebhookSignature();
     # TODO: Set properties in $resource from $body
     try {
-      $response = $resource->post($payment_method->getApiContext());
+      $response = $resource->post($payment_method->getApiContext($payment_method::PAYPAL_CONTEXT_TYPE_WEBHOOK));
       if ($response->getVerificationStatus() != 'SUCCESS') {
         return TRUE;
       }

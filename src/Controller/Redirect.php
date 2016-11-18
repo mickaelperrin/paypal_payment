@@ -48,7 +48,7 @@ class Redirect extends Base {
     /** @var PayPalBasic $payment_method */
     $payment_method = $payment->getPaymentMethod();
     /** @var ApiContext $api_context */
-    $api_context = $payment_method->getApiContext();
+    $api_context = $payment_method->getApiContext($payment_method::PAYPAL_CONTEXT_TYPE_REDIRECT);
 
     $p = Payment::get($paymentId, $api_context);
     $execution = new PaymentExecution();
