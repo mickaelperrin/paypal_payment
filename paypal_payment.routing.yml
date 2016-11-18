@@ -14,7 +14,7 @@ paypal_payment.redirect.cancel:
     _permission: 'access content'
 
 paypal_payment.webhook:
-  path: '/paypal-payment/webhook/{payment}'
+  path: '/paypal-payment/webhook/{payment_method_id}'
   defaults:
     _controller: 'Drupal\paypal_payment\Controller\Webhook::execute'
     _title: 'PayPal Payment Webhook'

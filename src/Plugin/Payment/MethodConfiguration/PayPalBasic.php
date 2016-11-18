@@ -71,6 +71,11 @@ abstract class PayPalBasic extends Basic {
       ],
       '#default_value' => $this->getLogLevel(),
     ];
+    $element['paypal']['logging'][PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_ADMIN] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Logging admin tasks'),
+      '#default_value' => $this->isLogging(PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_ADMIN),
+    ];
     $element['paypal']['logging'][PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_CREATE] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Logging when creating payment'),
@@ -102,6 +107,7 @@ abstract class PayPalBasic extends Basic {
     $values = NestedArray::getValue($values, $parents);
     $this->configuration['production'] = !empty($values['paypal']['production']);
     $this->configuration['loglevel'] = $values['paypal']['logging']['loglevel'];
+    $this->configuration['logging'][PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_ADMIN] = !empty($values['paypal']['logging'][PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_ADMIN]);
     $this->configuration['logging'][PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_CREATE] = !empty($values['paypal']['logging'][PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_CREATE]);
     $this->configuration['logging'][PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_WEBHOOK] = !empty($values['paypal']['logging'][PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_WEBHOOK]);
     $this->configuration['logging'][PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_REDIRECT] = !empty($values['paypal']['logging'][PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_REDIRECT]);
@@ -115,6 +121,7 @@ abstract class PayPalBasic extends Basic {
       'production' => $this->isProduction(),
       'loglevel' => $this->getLogLevel(),
       'logging' => [
+        PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_ADMIN => $this->isLogging(PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_ADMIN),
         PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_CREATE => $this->isLogging(PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_CREATE),
         PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_WEBHOOK => $this->isLogging(PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_WEBHOOK),
         PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_REDIRECT => $this->isLogging(PayPalBasicMethod::PAYPAL_CONTEXT_TYPE_REDIRECT),

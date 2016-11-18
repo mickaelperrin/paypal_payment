@@ -7,6 +7,8 @@
 
 namespace Drupal\paypal_payment\Controller;
 
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Controller\ControllerBase;
 use Drupal\payment\Entity\PaymentInterface;
 use Drupal\paypal_payment\Plugin\Payment\Method\PayPalBasic;
 use PayPal\Api\Payment;
@@ -17,12 +19,16 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Handles the "redirect" route.
  */
-class Redirect extends Base {
+class Redirect extends ControllerBase {
+
+  public function access(PaymentInterface $payment) {
+    return AccessResult::allowedIf($this->verify($payment));
+  }
 
   /**
    * @inheritDoc
    */
-  protected function verify(PaymentInterface $payment) {
+  private function verify(PaymentInterface $payment) {
     $request = \Drupal::request();
     /** @var PayPalBasic $payment_method */
     $payment_method = $payment->getPaymentMethod();

@@ -7,6 +7,7 @@
 namespace Drupal\paypal_payment\Plugin\Payment\Method;
 
 use Drupal\Core\PhpStorage\PhpStorageFactory;
+use Drupal\Core\Url;
 use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Rest\ApiContext;
 
@@ -22,10 +23,31 @@ use PayPal\Rest\ApiContext;
 class PayPalExpress extends PayPalBasic {
 
   /**
+   * @inheritDoc
+   */
+  public function getWebhookUrl() {
+    $configuration = $this->getPluginDefinition();
+    list(, $id) = explode(':', $configuration['id']);
+    return self::webhookUrl($id);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getWebhookId() {
+    $configuration = $this->getPluginDefinition();
+    return $configuration['webhookId'];
+  }
+
+
+  /**
    * {@inheritdoc}
    */
   public function getApiContext($type) {
-    $configuration = $this->getPluginDefinition();
+    return self::apiContext($this->getPluginDefinition(), $type);
+  }
+
+  public static function apiContext($configuration, $type) {
     $apiContext = new ApiContext(
       new OAuthTokenCredential(
         $configuration['clientId'],
@@ -48,6 +70,12 @@ class PayPalExpress extends PayPalBasic {
     ]);
 
     return $apiContext;
+  }
+
+  public static function webhookUrl($id) {
+    $webhook = new Url('paypal_payment.webhook',
+      ['payment_method_id' => $id], ['absolute' => TRUE]);
+    return $webhook->toString(TRUE)->getGeneratedUrl();
   }
 
 }

@@ -7,34 +7,52 @@
 
 namespace Drupal\paypal_payment\Controller;
 
-use Drupal\payment\Entity\PaymentInterface;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Controller\ControllerBase;
 use Drupal\paypal_payment\Plugin\Payment\Method\PayPalBasic;
 use PayPal\Api\VerifyWebhookSignature;
+use PayPal\Api\WebhookEvent;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Handles the "webhook" route.
  */
-class Webhook extends Base {
+class Webhook extends ControllerBase {
+
+  public function access($payment_method_id) {
+    return AccessResult::allowedIf($this->verify($payment_method_id));
+  }
 
   /**
-   * @param PaymentInterface $payment
+   * @param string $payment_method_id
    * @return bool
    */
-  protected function verify(PaymentInterface $payment) {
+  private function verify(string $payment_method_id) {
     /** @var PayPalBasic $payment_method */
-    $payment_method = $payment->getPaymentMethod();
+    $payment_method = \Drupal\payment\Payment::methodManager()->createInstance('paypal_payment_express:' . $payment_method_id);
 
-    $resource = new VerifyWebhookSignature();
-    # TODO: Set properties in $resource from $body
+    $request = \Drupal::request();
     try {
+      $webhook = new WebhookEvent($request->getContent());
+
+      $resource = new VerifyWebhookSignature();
+      $resource->setAuthAlgo($request->headers->get('paypal-auth-algo'));
+      $resource->setCertUrl($request->headers->get('paypal-cert-url'));
+      $resource->setTransmissionId($request->headers->get('paypal-transmission-id'));
+      $resource->setTransmissionSig($request->headers->get('paypal-transmission-sig'));
+      $resource->setTransmissionTime($request->headers->get('paypal-transmission-time'));
+      $resource->setWebhookEvent($webhook);
+      $resource->setWebhookId($payment_method->getWebhookId());
+
       $response = $resource->post($payment_method->getApiContext($payment_method::PAYPAL_CONTEXT_TYPE_WEBHOOK));
-      if ($response->getVerificationStatus() != 'SUCCESS') {
+      if ($response->getVerificationStatus() == 'SUCCESS') {
         return TRUE;
       }
+
     } catch (\Exception $ex) {
       // TODO: Error handling
     }
+
     return FALSE;
   }
 
@@ -42,10 +60,10 @@ class Webhook extends Base {
    * PayPal calls this after the payment status has been changed. PayPal only
    * gives us an id leaving us with the responsibility to get the payment status.
    *
-   * @param PaymentInterface $payment
-   * @return Response
+   * @param string $payment_method_id
+   * @return \Symfony\Component\HttpFoundation\Response
    */
-  public function execute(PaymentInterface $payment) {
+  public function execute(string $payment_method_id) {
     $request = \Drupal::request();
     $body = $request->getContent();
 

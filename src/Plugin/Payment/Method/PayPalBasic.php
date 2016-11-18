@@ -24,9 +24,20 @@ use PayPal\Rest\ApiContext;
  */
 abstract class PayPalBasic extends Basic {
 
+  const PAYPAL_CONTEXT_TYPE_ADMIN    = 'admin';
   const PAYPAL_CONTEXT_TYPE_CREATE   = 'create';
   const PAYPAL_CONTEXT_TYPE_WEBHOOK  = 'webhook';
   const PAYPAL_CONTEXT_TYPE_REDIRECT = 'redirect';
+
+  /**
+   * @return string
+   */
+  abstract public function getWebhookUrl();
+
+  /**
+   * @return string
+   */
+  abstract public function getWebhookId();
 
   /**
    * @param string $type
@@ -67,9 +78,6 @@ abstract class PayPalBasic extends Basic {
       ['payment' => $this->getPayment()->id()], ['absolute' => TRUE]);
     $redirectCancel = new Url('paypal_payment.redirect.cancel',
       ['payment' => $this->getPayment()->id()], ['absolute' => TRUE]);
-    $webhook = new Url('paypal_payment.webhook',
-      ['payment' => $this->getPayment()->id()], ['absolute' => TRUE]);
-    $webhoookUrl = $webhook->toString(TRUE)->getGeneratedUrl();
 
     $redirectUrls = new RedirectUrls();
     $redirectUrls->setReturnUrl($redirectSuccess->toString(TRUE)->getGeneratedUrl())
@@ -84,7 +92,7 @@ abstract class PayPalBasic extends Basic {
       ->setItemList($itemList)
       ->setDescription($this->getPayment()->id())
       ->setInvoiceNumber($this->getPayment()->id())
-      ->setNotifyUrl($webhoookUrl);
+      ->setNotifyUrl($this->getWebhookUrl());
 
     $payment = new Payment();
     $payment->setIntent('sale')

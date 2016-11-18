@@ -8,6 +8,9 @@ namespace Drupal\paypal_payment\Plugin\Payment\MethodConfiguration;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\paypal_payment\Plugin\Payment\Method\PayPalExpress as PayPalExpressMethod;
+use PayPal\Api\Webhook;
+use PayPal\Api\WebhookEventType;
 
 /**
  * Provides the configuration for the PayPal Express payment method plugin.
@@ -36,6 +39,15 @@ class PayPalExpress extends PayPalBasic {
    */
   public function getClientSecret() {
     return isset($this->configuration['clientSecret']) ? $this->configuration['clientSecret'] : '';
+  }
+
+  /**
+   * Gets the webhook ID of this configuration.
+   *
+   * @return string
+   */
+  public function getWebhookId() {
+    return isset($this->configuration['webhookId']) ? $this->configuration['webhookId'] : '';
   }
 
   /**
@@ -74,6 +86,31 @@ class PayPalExpress extends PayPalBasic {
     $values = NestedArray::getValue($values, $parents);
     $this->configuration['clientId'] = $values['paypal']['clientId'];
     $this->configuration['clientSecret'] = $values['paypal']['clientSecret'];
+    $this->configuration['webhookId'] = $this->updateWebhook($this->configuration, $form_state->getValue('id'));
+  }
+
+  private function updateWebhook($configuration, $id) {
+    $webhookId = $this->getWebhookId();
+    $apiContext = PayPalExpressMethod::apiContext($configuration, PayPalExpressMethod::PAYPAL_CONTEXT_TYPE_ADMIN);
+    if (!empty($webhookId)) {
+      try {
+        $webhook = Webhook::get($webhookId, $apiContext);
+        $webhookId = $webhook->getId();
+      } catch (\Exception $ex) {}
+    }
+
+    if (empty($webhookId)) {
+      try {
+        // Create a new webhook
+        $webhook = new Webhook();
+        $webhook->setUrl(PayPalExpressMethod::webhookUrl($id));
+        $eventTypes = WebhookEventType::availableEventTypes($apiContext);
+        $webhook->setEventTypes($eventTypes->getEventTypes());
+        $webhook = $webhook->create($apiContext);
+        $webhookId = $webhook->getId();
+      } catch (\Exception $ex) {}
+    }
+    return $webhookId;
   }
 
   /**
@@ -83,6 +120,7 @@ class PayPalExpress extends PayPalBasic {
     return parent::getDerivativeConfiguration() + [
       'clientId' => $this->getClientId(),
       'clientSecret' => $this->getClientSecret(),
+      'webhookId' => $this->getWebhookId(),
     ];
   }
 
