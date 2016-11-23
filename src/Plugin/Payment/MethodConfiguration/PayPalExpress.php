@@ -9,8 +9,11 @@ namespace Drupal\paypal_payment\Plugin\Payment\MethodConfiguration;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\paypal_payment\Plugin\Payment\Method\PayPalExpress as PayPalExpressMethod;
+use PayPal\Api\Patch;
+use PayPal\Api\PatchRequest;
 use PayPal\Api\Webhook;
 use PayPal\Api\WebhookEventType;
+use PayPal\Exception\PayPalConnectionException;
 
 /**
  * Provides the configuration for the PayPal Express payment method plugin.
@@ -89,28 +92,67 @@ class PayPalExpress extends PayPalBasic {
     $this->configuration['webhookId'] = $this->updateWebhook($this->configuration, $form_state->getValue('id'));
   }
 
+  /**
+   * @param $configuration
+   * @param $id
+   * @return string
+   */
   private function updateWebhook($configuration, $id) {
-    $webhookId = $this->getWebhookId();
+    $webhookId  = $this->getWebhookId();
+    $webhookUrl = PayPalExpressMethod::webhookUrl($id);
     $apiContext = PayPalExpressMethod::apiContext($configuration, PayPalExpressMethod::PAYPAL_CONTEXT_TYPE_ADMIN);
     if (!empty($webhookId)) {
       try {
         $webhook = Webhook::get($webhookId, $apiContext);
-        $webhookId = $webhook->getId();
-      } catch (\Exception $ex) {}
+        if ($webhookUrl != $webhook->getUrl()) {
+          $patch = new Patch();
+          $patch->setOp('replace')
+            ->setPath('/url')
+            ->setValue($webhookUrl);
+          $patchRequest = new PatchRequest();
+          $patchRequest->addPatch($patch);
+          try {
+            $webhook->update($patchRequest, $apiContext);
+          } catch (PayPalConnectionException $ppex) {
+            $this->handlePayPalException('Error updating webhook for PayPal payment method:', $ppex);
+          }
+        }
+      } catch (\Exception $ex) {
+        $webhookId = '';
+      }
     }
 
     if (empty($webhookId)) {
       try {
         // Create a new webhook
         $webhook = new Webhook();
-        $webhook->setUrl(PayPalExpressMethod::webhookUrl($id));
-        $eventTypes = WebhookEventType::availableEventTypes($apiContext);
-        $webhook->setEventTypes($eventTypes->getEventTypes());
+        $webhook->setUrl($webhookUrl);
+        $eventType = new WebhookEventType();
+        $eventType->setName('*');
+        $webhook->setEventTypes([$eventType]);
         $webhook = $webhook->create($apiContext);
         $webhookId = $webhook->getId();
-      } catch (\Exception $ex) {}
+      } catch (PayPalConnectionException $ppex) {
+        $this->handlePayPalException('Error craeting webhook for PayPal payment method:', $ppex);
+      } catch (\Exception $ex) {
+        drupal_set_message($this->t('Seomthing went wrong when creating the webhook for your PayPal Express payment method.'), 'error');
+      }
     }
     return $webhookId;
+  }
+
+  /**
+   * @param string $msg
+   * @param PayPalConnectionException $ppex
+   */
+  private function handlePayPalException($msg, $ppex) {
+    $data = \GuzzleHttp\json_decode($ppex->getData());
+    drupal_set_message($this->t($msg), 'error');
+    foreach ($data->details as $detail) {
+      drupal_set_message($this->t('%issue', [
+        '%issue' => $detail->issue,
+      ]), 'error');
+    }
   }
 
   /**
