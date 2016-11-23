@@ -103,13 +103,13 @@ abstract class PayPalBasic extends Basic {
     try {
       $payment->create($this->getApiContext(self::PAYPAL_CONTEXT_TYPE_CREATE));
       $this->setPaymentId($payment->getId());
+      $url = Url::fromUri($payment->getApprovalLink());
+      $response = new Response($url);
     } catch (\Exception $ex) {
-      // TODO: Error handling
-      exit;
+      # TODO: clarify with the payment maintainer how we should handle Exceptions
+      $response = NULL;
     }
 
-    $url = Url::fromUri($payment->getApprovalLink());
-    $response = new Response($url);
     return new OperationResult($response);
   }
 
