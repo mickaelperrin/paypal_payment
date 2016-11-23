@@ -28,11 +28,14 @@ class Webhook extends ControllerBase {
    * @return bool
    */
   private function verify(string $payment_method_id) {
-    /** @var PayPalBasic $payment_method */
-    $payment_method = \Drupal\payment\Payment::methodManager()->createInstance('paypal_payment_express:' . $payment_method_id);
-
     $request = \Drupal::request();
     try {
+      /** @var PayPalBasic $payment_method */
+      $payment_method = \Drupal\payment\Payment::methodManager()->createInstance('paypal_payment_express:' . $payment_method_id);
+      if (!($payment_method instanceof PayPalBasic)) {
+        throw new \Exception('Unsupported web hook');
+      }
+
       $webhook = new WebhookEvent($request->getContent());
 
       $resource = new VerifyWebhookSignature();
