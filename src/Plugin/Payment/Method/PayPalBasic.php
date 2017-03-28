@@ -29,6 +29,8 @@ abstract class PayPalBasic extends Basic {
   const PAYPAL_CONTEXT_TYPE_WEBHOOK  = 'webhook';
   const PAYPAL_CONTEXT_TYPE_REDIRECT = 'redirect';
 
+  const PAYPAL_DEFAULT_CURRENCY = 'USD';
+
   /**
    * @return string
    */
@@ -63,15 +65,29 @@ abstract class PayPalBasic extends Basic {
 
     $itemList = new ItemList();
     $totalAmount = 0;
+    $currency = self::PAYPAL_DEFAULT_CURRENCY;
     foreach ($this->getPayment()->getLineItems() as $line_item) {
       $totalAmount += $line_item->getTotalAmount();
+      $line_item_currency = $line_item->getCurrencyCode();
 
       $item = new Item();
       $item->setName($line_item->getName())
-        ->setCurrency($line_item->getCurrencyCode())
+        ->setCurrency($line_item_currency)
         ->setQuantity($line_item->getQuantity())
         ->setPrice($line_item->getTotalAmount());
       $itemList->addItem($item);
+
+      if ($line_item_currency != $currency) {
+        if ($currency != self::PAYPAL_DEFAULT_CURRENCY) {
+          // This is the second time we are changing the currency which means
+          // that our line items have mixed currencies. This aion't gonna work!
+
+          # TODO: clarify with the payment maintainer how we should handle this
+          drupal_set_message($this->t('Mixed currencies detected which is not yet supported.'), 'error');
+          return new OperationResult(NULL);
+        }
+        $currency = $line_item_currency;
+      }
     }
 
     $redirectSuccess = new Url('paypal_payment.redirect.success',
@@ -84,7 +100,7 @@ abstract class PayPalBasic extends Basic {
       ->setCancelUrl($redirectCancel->toString(TRUE)->getGeneratedUrl());
 
     $amount = new Amount();
-    $amount->setCurrency('USD')
+    $amount->setCurrency($currency)
       ->setTotal($totalAmount);
 
     $transaction = new Transaction();
