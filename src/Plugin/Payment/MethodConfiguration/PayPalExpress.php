@@ -135,7 +135,7 @@ class PayPalExpress extends PayPalBasic {
       } catch (PayPalConnectionException $ppex) {
         $this->handlePayPalException('Error creating webhook for PayPal payment method:', $ppex);
       } catch (\Exception $ex) {
-        drupal_set_message($this->t('Seomthing went wrong when creating the webhook for your PayPal Express payment method.'), 'error');
+        drupal_set_message($this->t('Something went wrong when creating the webhook for your PayPal Express payment method.'), 'error');
       }
     }
     return $webhookId;
