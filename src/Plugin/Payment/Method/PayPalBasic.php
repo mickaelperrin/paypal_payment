@@ -74,7 +74,7 @@ abstract class PayPalBasic extends Basic {
       $item->setName($line_item->getName())
         ->setCurrency($line_item_currency)
         ->setQuantity($line_item->getQuantity())
-        ->setPrice($line_item->getTotalAmount());
+        ->setPrice($line_item->getAmount());
       $itemList->addItem($item);
 
       if ($line_item_currency != $currency) {
