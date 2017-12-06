@@ -13,6 +13,9 @@ use Drupal\paypal_payment\Plugin\Payment\Method\PayPalBasic;
 use PayPal\Api\VerifyWebhookSignature;
 use PayPal\Api\WebhookEvent;
 use Symfony\Component\HttpFoundation\Response;
+use Drupal\payment\Entity\Payment as PaymentEntity;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Drupal\payment\Payment;
 
 /**
  * Handles the "webhook" route.
@@ -70,9 +73,67 @@ class Webhook extends ControllerBase {
     $request = \Drupal::request();
     $body = $request->getContent();
 
-    # TODO: Implement the webhook, access has already been verified.
+    // Validate body response
+    if (!(
+            ($bodyArray=json_decode($body, true))
+            && array_key_exists('resource', $bodyArray)
+            && array_key_exists('invoice_number', $bodyArray['resource']
+            )
+          )
+    ) {
+      throw new HttpException(500, 'Bad webhook request');
+    }
 
-    return new Response();
+    // Grab payment ID from the invoice number field
+    $paymentId = $bodyArray['resource']['invoice_number'];
+
+    // Get the entity ID and load it.
+    if (!$this->payment = PaymentEntity::load($paymentId)) {
+      throw new HttpException(404, 'Payment Not Found');
+    }
+
+    // Convert event type from Paypal to drupal payment status
+    $eventType = $bodyArray['event_type'];
+    switch ($eventType) {
+      case 'PAYMENT.SALE.COMPLETED':
+        $paymentStatusPluginId = 'payment_authorized';
+        break;
+
+      case 'PAYMENT.SALE.DENIED':
+        $paymentStatusPluginId = 'payment_authorization_failed';
+        break;
+
+      case 'PAYMENT.SALE.PENDING':
+        $paymentStatusPluginId = 'payment_pending';
+        break;
+
+      case 'PAYMENT.SALE.REFUNDED':
+        $paymentStatusPluginId = 'payment_refunded';
+        break;
+
+      case 'PAYMENT.SALE.REVERSED':
+        $paymentStatusPluginId = 'payment_refunded';
+        break;
+
+      default:
+        // Throw exception if event_type as not been mapped
+        throw new HttpException(500, 'Invalid payment status');
+        break;
+    }
+
+    // Load payment status object from it's ID
+    if (!$paymentStatus = Payment::statusManager()->createInstance($paymentStatusPluginId)) {
+      throw new HttpException(500, 'Invalid plugin id');
+    }
+
+    // Update payment status and save entity.
+    $this->payment->setPaymentStatus($paymentStatus);
+
+    // This save can be hooked by the payment type to implement callback.
+    $this->payment->save();
+
+    // Return a 200 code for SystemPay back office.
+    return new Response('Action successfully registered.', 200);
   }
 
 }
