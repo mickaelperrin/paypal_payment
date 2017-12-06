@@ -66,7 +66,7 @@ class PayPalExpress extends PayPalBasic {
       'log.FileName' => file_directory_temp() . '/DrupalPayPal.log',
       'log.LogLevel' => $configuration['loglevel'],
       'cache.enabled' => TRUE,
-      'cache.FileName' => DRUPAL_ROOT . '/' . $storage->getFullPath('auth.cache'),
+      'cache.FileName' => $storage->getFullPath('auth.cache'),
     ]);
 
     return $apiContext;
