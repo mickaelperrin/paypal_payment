@@ -1,5 +1,5 @@
 {
-    "name": "drupal/paypal_payment",
+    "name": "dkod/paypal_payment",
     "description": "Provides generic PayPal functionality.",
     "type": "drupal-module",
     "homepage": "https://www.drupal.org/project/paypal_payment",
