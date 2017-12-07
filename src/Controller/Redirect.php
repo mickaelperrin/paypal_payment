@@ -73,9 +73,11 @@ class Redirect extends ControllerBase {
     return $this->getResponse($payment);
   }
 
-  private function getResponse(PaymentInterface $payment) {
-    $response = $payment->getPaymentType()->getResumeContextResponse();
-    return $response->getResponse();
+  private function getResponse($payment) {
+	//    $response = $payment->getPaymentType()->getResumeContextResponse();
+	//    return $response->getResponse();
+	// Force redirect to dashboard page, this should be modifiable in plugin settings.
+    return $this->redirect('reprogrammation.dashboard_controller_page');
   }
 
 }
