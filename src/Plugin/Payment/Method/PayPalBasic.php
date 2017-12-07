@@ -107,8 +107,7 @@ abstract class PayPalBasic extends Basic {
     $transaction->setAmount($amount)
       ->setItemList($itemList)
       ->setDescription($this->getPayment()->id())
-      ->setInvoiceNumber($this->getPayment()->id())
-      ->setNotifyUrl($this->getWebhookUrl());
+      ->setInvoiceNumber($this->getPayment()->id());
 
     $payment = new Payment();
     $payment->setIntent('sale')
